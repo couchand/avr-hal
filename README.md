@@ -116,6 +116,7 @@ The chip-HAL crates currently support the following peripherals:
   - [x] `PORTA`, `PORTB`, `PORTC`, `PORTD` as digital IO
   - [x] I2C using `TWI`
   - [x] SPI
+  - [x] ADC
 
 ### Supported Hardware
 In `boards/` there are crates for the following hardware.  Please note that this project is in no way affiliated with any of the vendors.

@@ -50,6 +50,7 @@ macro_rules! impl_adc {
             type ChannelID = $ID:ty;
             peripheral: $ADC:ty,
             set_mux: |$periph_var:ident, $id_var:ident| $set_mux:block,
+            set_ref: |$periph_var_ref:ident, $voltage_var_ref:ident| $set_ref:block,
             pins: {
                 $($pxi:ident: ($PXi:ident, $ChannelID:expr, $didr:ident::$didr_method:ident),)+
             }
@@ -69,12 +70,12 @@ macro_rules! impl_adc {
 
         impl $Adc {
             pub fn new(peripheral: $ADC, settings: AdcSettings) -> $Adc {
-                let s = Self { peripheral, reading_channel: None } ;
+                let mut s = Self { peripheral, reading_channel: None } ;
                 s.enable(settings);
                 s
             }
 
-            fn enable(&self, settings: AdcSettings) {
+            fn enable(&mut self, settings: AdcSettings) {
                 self.peripheral.adcsra.write(|w| {
                     w.aden().set_bit();
                     match settings.clock_divider {
@@ -86,11 +87,12 @@ macro_rules! impl_adc {
                         ClockRateDivision::Factor64 => w.adps().prescaler_64(),
                         ClockRateDivision::Factor128 => w.adps().prescaler_128(),
                     }});
-                self.peripheral.admux.write(|w| match settings.ref_voltage {
-                    ReferenceVoltage::Aref => w.refs().aref(),
-                    ReferenceVoltage::AVcc => w.refs().avcc(),
-                    ReferenceVoltage::Internal => w.refs().internal(),
-                });
+                {
+                    let $periph_var_ref = &mut self.peripheral;
+                    let $voltage_var_ref = settings.ref_voltage;
+
+                    $set_ref
+                }
 
             }
 

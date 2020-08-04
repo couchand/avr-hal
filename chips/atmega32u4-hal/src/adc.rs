@@ -37,6 +37,13 @@ avr_hal::impl_adc! {
             peripheral.admux.modify(|_, w| w.mux().bits(id & 0x1f));
             peripheral.adcsrb.modify(|_, w| w.mux5().bit(id & 0x20 != 0));
         },
+        set_ref: |peripheral, voltage| {
+            peripheral.admux.write(|w| match voltage {
+                ReferenceVoltage::Aref => w.refs().aref(),
+                ReferenceVoltage::AVcc => w.refs().avcc(),
+                ReferenceVoltage::Internal => w.refs().internal(),
+            });
+        },
         pins: {
             pf0: (PF0, AdcMux::Adc0, didr0::adc0d),
             pf1: (PF1, AdcMux::Adc1, didr0::adc1d),
